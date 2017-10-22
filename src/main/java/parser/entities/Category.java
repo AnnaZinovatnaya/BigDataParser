@@ -24,6 +24,13 @@ public class Category {
         this.numberOfPages = numberOfPages;
     }
 
+    public Category() {
+        this.id = 0;
+        this.categoryName = "";
+        this.numberOfFiles = 0;
+        this.numberOfPages = 0;
+    }
+
     public Category(long id, String categoryName, long numberOfFiles, long numberOfPages) {
         this.id = id;
         this.categoryName = categoryName;
@@ -67,9 +74,9 @@ public class Category {
     public String toString() {
         return "Category{" +
                 "id=" + id +
-                ",\tcategoryName='" + categoryName + '\'' +
-                ",\tnumberOfFiles=" + numberOfFiles +
-                ",\tnumberOfPages=" + numberOfPages +
+                ",\t\tcategoryName='" + categoryName + '\'' +
+                ",\t\t\t\tnumberOfFiles=" + numberOfFiles +
+                ",\t\tnumberOfPages=" + numberOfPages +
                 '}';
     }
 }

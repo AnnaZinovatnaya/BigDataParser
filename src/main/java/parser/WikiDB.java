@@ -113,7 +113,50 @@ public class WikiDB {
     Files.write(file, text, Charset.forName("UTF-8"));
   }
 
-  public synchronized void saveAllDataToFile(String filePath){
+  public synchronized void saveAllDataToFile(String filePath) throws IOException {
+    Path file = Paths.get(filePath);
 
+    SessionFactory sessionFactory = HibernateUtilities.getSessionFactory();
+
+    List<Category> categories = new ArrayList<>();
+
+    try (Session session = sessionFactory.openSession()) {
+      Transaction tx;
+      tx = session.beginTransaction();
+      Query query = session.createQuery("select "
+              + "new parser.entities.Category(c.id, c.categoryName, c.numberOfFiles, c.numberOfPages) "
+              + "from Category c");
+
+      categories =  query.getResultList();
+
+      tx.commit();
+    }
+
+    List<String> text = new ArrayList<>();
+    for (Category category : categories) {
+
+      text.add(category.toString());
+
+      SessionFactory sessionFactory2 = HibernateUtilities.getSessionFactory();
+
+      List<Page> pages = new ArrayList<>();
+
+      try (Session session = sessionFactory2.openSession()) {
+        Transaction tx;
+        tx = session.beginTransaction();
+        Query query = session.createQuery("select "
+                + "new parser.entities.Page(p.id, p.pageName, p.category) "
+                + "from Page p");
+
+        pages =  query.getResultList();
+
+        tx.commit();
+      }
+
+      for (Page page : pages) {
+        text.add("\t->\t" + page.toStringWithoutCategory());
+      }
+    }
+    Files.write(file, text, Charset.forName("UTF-8"));
   }
 }

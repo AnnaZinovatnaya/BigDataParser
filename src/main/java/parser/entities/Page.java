@@ -27,6 +27,12 @@ public class Page {
         this.category = category;
     }
 
+    public Page() {
+        this.id = 0;
+        this.pageName = "";
+        this.category = null;
+    }
+
     public long getId() {
         return id;
     }
@@ -56,7 +62,14 @@ public class Page {
         return "Page{" +
                 "id=" + id +
                 ",\tpageName='" + pageName + '\'' +
-                ",\tcategory=" + category +
+                ",\t\t\tcategory=" + category +
+                '}';
+    }
+
+    public String toStringWithoutCategory() {
+        return "Page{" +
+                "id=" + id +
+                ",\tpageName='" + pageName + '\'' +
                 '}';
     }
 }

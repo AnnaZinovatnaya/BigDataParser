@@ -19,20 +19,24 @@ public class JsonParser {
     public static void main (String[] args) throws IOException {
 
         System.out.println("Parsing categories...");
-        List<Category> categories = parseCategoriesToDatabase();
+        //List<Category> categories = parseCategoriesToDatabase();
         System.out.println("Finished parsing categories!");
 
         System.out.println("Saving categories to file...");
-        WikiDB.getInstance().saveAllCategoriesToFile("D:\\BigData\\Categories.txt");
+        //WikiDB.getInstance().saveAllCategoriesToFile("D:\\BigData\\Categories.txt");
         System.out.println("Categories are saved to file Categories.txt");
 
         System.out.println("Parsing pages...");
-        parsePagesToDatabase(categories);
+        //parsePagesToDatabase(categories);
         System.out.println("Finished parsing pages!");
 
         System.out.println("Saving pages to file...");
-        WikiDB.getInstance().saveAllPagesToFile("D:\\BigData\\Pages.txt");
+        //WikiDB.getInstance().saveAllPagesToFile("D:\\BigData\\Pages.txt");
         System.out.println("Pages are saved to file Pages.txt");
+
+        System.out.println("Saving all data to file...");
+        WikiDB.getInstance().saveAllDataToFile("D:\\BigData\\AllData.txt");
+        System.out.println("All data is saved to file AllData.txt");
 
         System.out.println("FINISH");
 
