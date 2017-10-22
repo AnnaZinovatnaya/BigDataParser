@@ -21,6 +21,12 @@ public class Page {
         this.category = category;
     }
 
+    public Page(long id, String pageName, Category category) {
+        this.id = id;
+        this.pageName = pageName;
+        this.category = category;
+    }
+
     public long getId() {
         return id;
     }
@@ -43,5 +49,14 @@ public class Page {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "id=" + id +
+                ",\tpageName='" + pageName + '\'' +
+                ",\tcategory=" + category +
+                '}';
     }
 }

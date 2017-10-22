@@ -24,6 +24,13 @@ public class Category {
         this.numberOfPages = numberOfPages;
     }
 
+    public Category(long id, String categoryName, long numberOfFiles, long numberOfPages) {
+        this.id = id;
+        this.categoryName = categoryName;
+        this.numberOfFiles = numberOfFiles;
+        this.numberOfPages = numberOfPages;
+    }
+
     public long getId() {
         return id;
     }
@@ -54,5 +61,15 @@ public class Category {
 
     public void setNumberOfPages(long numberOfPages) {
         this.numberOfPages = numberOfPages;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ",\tcategoryName='" + categoryName + '\'' +
+                ",\tnumberOfFiles=" + numberOfFiles +
+                ",\tnumberOfPages=" + numberOfPages +
+                '}';
     }
 }
