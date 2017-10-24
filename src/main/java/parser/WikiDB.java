@@ -189,7 +189,6 @@ public class WikiDB {
 
   public static List<Page> getAllPages(){
     SessionFactory sessionFactory = HibernateUtilities.getSessionFactory();
-
     List<Page> pages = new ArrayList<>();
 
     try (Session session = sessionFactory.openSession()) {
@@ -205,4 +204,28 @@ public class WikiDB {
     }
     return pages;
   }
+
+  public static boolean containsViews(Page page) {
+    SessionFactory sessionFactory = HibernateUtilities.getSessionFactory();
+    List<Page> pages = new ArrayList<>();
+
+    try (Session session = sessionFactory.openSession()) {
+      Transaction tx;
+      tx = session.beginTransaction();
+      Query query = session.createQuery("select "
+              + "new parser.entities.View(v.id, v.year, v.month, v.page, v.viewCount) "
+              + "from View v where v.page.id=:id");
+      query.setParameter("id", page.getId());
+
+      pages =  query.getResultList();
+
+      tx.commit();
+    }
+
+    if(pages.isEmpty())
+      return false;
+    else
+      return true;
+  }
+
 }

@@ -34,15 +34,15 @@ public class JsonParser {
     }
 
     public static void parseDataToDatabase() throws IOException {
-        System.out.println("Parsing categories...");
-        parseCategoriesToDatabase();
-        System.out.println("Finished parsing categories!");
+        //System.out.println("Parsing categories...");
+        //parseCategoriesToDatabase();
+        //System.out.println("Finished parsing categories!");
 
-        List<Category> categories = WikiDB.getAllCategories();
+        //List<Category> categories = WikiDB.getAllCategories();
 
-        System.out.println("Parsing pages...");
-        parsePagesToDatabase(categories);
-        System.out.println("Finished parsing pages!");
+        //System.out.println("Parsing pages...");
+        //parsePagesToDatabase(categories);
+        //System.out.println("Finished parsing pages!");
 
         List<Page> pages = WikiDB.getAllPages();
 
@@ -134,44 +134,50 @@ public class JsonParser {
         int counter = 1;
 
         for (int k=0; k < pages.size() ; ++k) {
-            try {
-                if(0 == (k%500)) {
-                    System.out.println("Page - " + counter + "/" + pages.size());
-                    counter+=500;
-                }
+            if(!WikiDB.containsViews(pages.get(k))) {
+                try {
 
-                String pageName = pages.get(k).getPageName().replaceAll(" ", "%20");
-                pageName = pageName.replaceAll("!", "%21");
-                pageName = pageName.replaceAll("%", "%25");
-                pageName = pageName.replaceAll("&", "%26");
+                    System.out.println("Page - " + counter++ + "/" + pages.size());
 
-                String url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/" + pageName + "/monthly/20160101/20171024";
 
-                JSONObject json = readJsonFromUrl(url);
-                JSONArray views = (JSONArray) json.get("items");
+                    String pageName = pages.get(k).getPageName().replaceAll("%", "%25");
+                    pageName = pageName.replaceAll("!", "%21");
+                    pageName = pageName.replaceAll(" ", "%20");
+                    pageName = pageName.replaceAll("&", "%26");
+                    pageName = pageName.replaceAll("\\(", "%28");
+                    pageName = pageName.replaceAll("\\)", "%29");
+                    pageName = pageName.replaceAll("\\$", "%24");
+                    pageName = pageName.replaceAll("\\+", "%2B");
+                    pageName = pageName.replaceAll("-", "%2D");
 
-                Iterator<Object> iterator = views.iterator();
+                    String url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/" + pageName + "/monthly/20160101/20171024";
 
-                while (iterator.hasNext()) {
+                    JSONObject json = readJsonFromUrl(url);
+                    JSONArray views = (JSONArray) json.get("items");
 
-                    JSONObject viewJSON = (JSONObject) iterator.next();
-                    String timestamp = viewJSON.get("timestamp").toString();
-                    int viewCount = Integer.parseInt(viewJSON.get("views").toString());
+                    Iterator<Object> iterator = views.iterator();
 
-                    View view = new View(Integer.parseInt(timestamp.substring(0, 4)), Integer.parseInt(timestamp.substring(4, 6)), pages.get(k), viewCount);
-                    try {
-                        WikiDB.getInstance().addView(view);
-                    } catch (HibernateException ex) {
-                        continue;
+                    while (iterator.hasNext()) {
+
+                        JSONObject viewJSON = (JSONObject) iterator.next();
+                        String timestamp = viewJSON.get("timestamp").toString();
+                        int viewCount = Integer.parseInt(viewJSON.get("views").toString());
+
+                        View view = new View(Integer.parseInt(timestamp.substring(0, 4)), Integer.parseInt(timestamp.substring(4, 6)), pages.get(k), viewCount);
+                        try {
+                            WikiDB.getInstance().addView(view);
+                        } catch (HibernateException ex) {
+                            continue;
+                        }
                     }
-                }
 
-            } catch (FileNotFoundException e) {
-                continue;
-            } catch (UnknownHostException ex) {
-                continue;
-            } catch (IOException exe){
-                continue;
+                } catch (FileNotFoundException e) {
+                    continue;
+                } catch (UnknownHostException ex) {
+                    continue;
+                } catch (IOException exe) {
+                    continue;
+                }
             }
         }
     }
