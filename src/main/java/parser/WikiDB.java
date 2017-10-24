@@ -49,6 +49,21 @@ public class WikiDB {
     }
   }
 
+  public synchronized void addView(View view) throws HibernateException {
+
+    SessionFactory sessionFactory = HibernateUtilities.getSessionFactory();
+
+    try (Session session = sessionFactory.openSession()) {
+      Transaction tx;
+      tx = session.beginTransaction();
+
+      session.save(view);
+      tx.commit();
+    } catch (HibernateException ex) {
+      throw ex;
+    }
+  }
+
   public synchronized void saveAllCategoriesToFile(String filePath) throws IOException {
     Path file = Paths.get(filePath);
 
@@ -170,5 +185,24 @@ public class WikiDB {
       tx.commit();
     }
     return categories;
+  }
+
+  public static List<Page> getAllPages(){
+    SessionFactory sessionFactory = HibernateUtilities.getSessionFactory();
+
+    List<Page> pages = new ArrayList<>();
+
+    try (Session session = sessionFactory.openSession()) {
+      Transaction tx;
+      tx = session.beginTransaction();
+      Query query = session.createQuery("select "
+              + "new parser.entities.Page(p.id, p.pageName, p.category) "
+              + "from Page p");
+
+      pages =  query.getResultList();
+
+      tx.commit();
+    }
+    return pages;
   }
 }

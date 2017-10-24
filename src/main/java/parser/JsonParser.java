@@ -12,7 +12,7 @@ public class JsonParser {
     public static void main (String[] args) throws IOException {
         parseDataToDatabase();
 
-        saveDataToFiles();
+        //saveDataToFiles();
 
         System.out.println("FINISH");
 
@@ -34,15 +34,21 @@ public class JsonParser {
     }
 
     public static void parseDataToDatabase() throws IOException {
-        System.out.println("Parsing categories...");
-        parseCategoriesToDatabase();
-        System.out.println("Finished parsing categories!");
+        //System.out.println("Parsing categories...");
+        //parseCategoriesToDatabase();
+        //System.out.println("Finished parsing categories!");
 
-        List<Category> categories = WikiDB.getAllCategories();
+        //List<Category> categories = WikiDB.getAllCategories();
 
-        System.out.println("Parsing pages...");
-        parsePagesToDatabase(categories);
-        System.out.println("Finished parsing pages!");
+        //System.out.println("Parsing pages...");
+        //parsePagesToDatabase(categories);
+        //System.out.println("Finished parsing pages!");
+
+        List<Page> pages = WikiDB.getAllPages();
+
+        System.out.println("Parsing views...");
+        parseViewsToDatabase(pages);
+        System.out.println("Finished parsing views!");
     }
 
     public static void parseCategoriesToDatabase() throws IOException {
@@ -67,8 +73,10 @@ public class JsonParser {
     }
 
     public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
-        InputStream is = new URL(url).openStream();
+        InputStream is = null;
         try {
+            is = new URL(url).openStream();
+
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
             StringBuilder sb = new StringBuilder();
@@ -79,8 +87,11 @@ public class JsonParser {
 
             JSONObject json = new JSONObject(sb.toString());
             return json;
+        }catch (FileNotFoundException ex) {
+            throw ex;
         } finally {
-            is.close();
+            if (null != is)
+                is.close();
         }
     }
 
@@ -113,6 +124,43 @@ public class JsonParser {
                         }
                     }
                 }
+            } catch (UnknownHostException ex) {
+                continue;
+            }
+        }
+    }
+
+    public static void parseViewsToDatabase(List<Page> pages) throws IOException {
+        int counter = 1;
+
+        for (int k=0; k < pages.size() ; ++k) {
+            try {
+                System.out.println("Page - " + counter++ + "/" + pages.size());
+
+                String pageName = pages.get(k).getPageName().replaceAll(" ", "%20");
+                pageName = pageName.replaceAll("&", "%26");
+                String url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/" + pageName + "/monthly/20160101/20171024";
+
+                JSONObject json = readJsonFromUrl(url);
+                JSONArray views = (JSONArray) json.get("items");
+
+                Iterator<Object> iterator = views.iterator();
+
+                while (iterator.hasNext()) {
+
+                    JSONObject viewJSON = (JSONObject) iterator.next();
+                    String timestamp = viewJSON.get("timestamp").toString();
+                    int viewCount = Integer.parseInt(viewJSON.get("views").toString());
+
+                    View view = new View(Integer.parseInt(timestamp.substring(0, 4)), Integer.parseInt(timestamp.substring(4, 6)), pages.get(k), viewCount);
+                    try {
+                        WikiDB.getInstance().addView(view);
+                    } catch (HibernateException ex) {
+                        continue;
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                continue;
             } catch (UnknownHostException ex) {
                 continue;
             }
