@@ -138,7 +138,22 @@ public class JsonParser {
                 System.out.println("Page - " + counter++ + "/" + pages.size());
 
                 String pageName = pages.get(k).getPageName().replaceAll(" ", "%20");
+                pageName = pageName.replaceAll("!", "%21");
+                pageName = pageName.replaceAll("\"", "%22");
+                pageName = pageName.replaceAll("#", "%23");
+                pageName = pageName.replaceAll("\\$", "%24");
+                pageName = pageName.replaceAll("%", "%25");
                 pageName = pageName.replaceAll("&", "%26");
+                pageName = pageName.replaceAll("\'", "%27");
+                pageName = pageName.replaceAll("\\(", "%28");
+                pageName = pageName.replaceAll("\\)", "%29");
+                pageName = pageName.replaceAll("\\*", "%2A");
+                pageName = pageName.replaceAll("\\+", "%2B");
+                pageName = pageName.replaceAll(",", "%2C");
+                pageName = pageName.replaceAll("-", "%2D");
+                pageName = pageName.replaceAll(".", "%2E");
+                pageName = pageName.replaceAll("/", "%2F");
+
                 String url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/" + pageName + "/monthly/20160101/20171024";
 
                 JSONObject json = readJsonFromUrl(url);
@@ -159,9 +174,12 @@ public class JsonParser {
                         continue;
                     }
                 }
+
             } catch (FileNotFoundException e) {
                 continue;
             } catch (UnknownHostException ex) {
+                continue;
+            } catch (IOException exe){
                 continue;
             }
         }
